@@ -11,6 +11,8 @@ describe("filterGroundedReferences (RCA/remediation grounding)", () => {
       rootCauseHypothesis: "bad rollout",
       rootCauseConfidence: 0.8,
       groundedReferences: ["ref:1"],
+      retrievalSummary: "deploy regression in checkout service",
+      retrievalRefs: ["postmortem:checkout"],
       repoContext: {
         available: true,
         provider: "local-git",
@@ -35,6 +37,7 @@ describe("filterGroundedReferences (RCA/remediation grounding)", () => {
     expect(prompt).toContain("Repository context");
     expect(prompt).toContain("https://github.com/example/repo");
     expect(prompt).toContain("change cache key");
+    expect(prompt).toContain("Do not emit a generic template answer");
   });
   it("keeps only cited references that exist in the valid set", () => {
     const cited = ["runbook:A", "hallucinated:X", "incident:B"];

@@ -1,14 +1,39 @@
 import { execFile } from "node:child_process";
+import { existsSync } from "node:fs";
 import { promisify } from "node:util";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { query } from "@open-gitagent/gitagent";
+import { pathToFileURL } from "node:url";
 import type { RepoContext, RepoContextRequest } from "@volt-tackle/shared";
 import { emptyRepoContext, type RepoContextProvider } from "./types.js";
 import { LocalGitRepoContextProvider } from "./localGitRepoContextProvider.js";
 
 const exec = promisify(execFile);
+
+function resolveGitAgentExportsPath(): string {
+  const candidates = [process.cwd(), path.dirname(new URL(import.meta.url).pathname)];
+  for (const base of candidates) {
+    const modulePath = path.resolve(base, "node_modules", "@open-gitagent", "gitagent", "dist", "exports.js");
+    if (existsSync(modulePath)) return modulePath;
+  }
+
+  let current = path.resolve(path.dirname(new URL(import.meta.url).pathname));
+  while (true) {
+    const modulePath = path.join(current, "node_modules", "@open-gitagent", "gitagent", "dist", "exports.js");
+    if (existsSync(modulePath)) return modulePath;
+    const parent = path.dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+
+  throw new Error("Unable to locate @open-gitagent/gitagent/dist/exports.js in the workspace.");
+}
+
+async function loadGitAgentQuery() {
+  const modulePath = resolveGitAgentExportsPath();
+  return (await import(pathToFileURL(modulePath).href)) as { query: (args: unknown) => AsyncIterable<unknown> };
+}
 
 export interface GitAgentConfig {
   /** service -> repo URL. */
@@ -143,7 +168,8 @@ export class GitAgentRepoContextProvider implements RepoContextProvider {
     const timer = setTimeout(() => abortController.abort(), this.config.timeoutMs ?? 150_000);
     let finalText = "";
     try {
-      const q = query({ prompt, dir, model, maxTurns: this.config.maxTurns ?? 12, abortController });
+      const { query: gitAgentQuery } = await loadGitAgentQuery();
+      const q = gitAgentQuery({ prompt, dir, model, maxTurns: this.config.maxTurns ?? 12, abortController });
       for await (const msg of q) {
         if (msg.type === "assistant" && typeof msg.content === "string" && msg.content.trim()) {
           finalText = msg.content;

@@ -63,7 +63,10 @@ export function buildUserPrompt(input: RemediationInput): string {
     `Category: ${input.category}`,
     `Severity: ${SEVERITY_RISK_HINT[input.severity]}`,
     `Root cause hypothesis (confidence ${input.rootCauseConfidence}): ${input.rootCauseHypothesis}`,
+    `Retrieved context summary: ${input.retrievalSummary || "(none)"}`,
     `Available grounded references: ${input.groundedReferences.join(", ") || "(none)"}`,
+    `Retrieval references: ${input.retrievalRefs.join(", ") || "(none)"}`,
+    `Instruction: Tailor the remediation plan to the specific incident evidence, repo context, and grounded references. Do not emit a generic template answer; explicitly reference the observed symptom, affected component, and evidence-backed next step.`,
   ];
 
   if (input.repoContext?.available) {
@@ -76,6 +79,7 @@ export function buildUserPrompt(input: RemediationInput): string {
         : "(no commits extracted)";
     lines.push(
       `Repository context (source: ${rc.provider}${rc.repo ? `, repo: ${rc.repo}` : ""}):`,
+      `Summary: ${rc.summary}`,
       `Recent commits:\n${commitsText}`,
       `Suspect changes:\n${rc.suspectSignals.length ? rc.suspectSignals.map((s) => `- ${s}`).join("\n") : "(none flagged)"}`,
     );

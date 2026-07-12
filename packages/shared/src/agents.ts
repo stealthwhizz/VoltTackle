@@ -113,6 +113,8 @@ export const RemediationInputSchema = z.object({
   rootCauseHypothesis: z.string(),
   rootCauseConfidence: z.number().min(0).max(1),
   groundedReferences: z.array(z.string()),
+  retrievalSummary: z.string().default(""),
+  retrievalRefs: z.array(z.string()).default([]),
   repoContext: RepoContextSchema.optional(),
 });
 export type RemediationInput = z.infer<typeof RemediationInputSchema>;
