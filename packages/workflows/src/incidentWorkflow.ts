@@ -17,7 +17,7 @@ import type { WorkflowDeps } from "./types.js";
 const BaseIO = z.object({ incidentId: z.string(), correlationId: z.string() });
 
 /** Incident categories for which repo/code context is worth fetching. */
-const REPO_CONTEXT_CATEGORIES = new Set(["DEPLOY_REGRESSION"]);
+const REPO_CONTEXT_CATEGORIES = new Set(["DEPLOY_REGRESSION", "INFRA_FAILURE", "PERFORMANCE_DEGRADATION"]);
 
 const TriageStepOutput = BaseIO.extend({
   category: IncidentCategorySchema,
@@ -168,6 +168,7 @@ export function buildIncidentWorkflow(deps: WorkflowDeps) {
       // incidents (which carry a repoUrl). Otherwise this stays a no-op and the
       // RCA behaves exactly as before.
       const shouldFetchRepo = REPO_CONTEXT_CATEGORIES.has(category) || Boolean(repoUrl);
+      deps.logger.info({ incidentId, category, repoUrl, shouldFetchRepo, provider: deps.repoContextProvider.name }, "Repo context workflow decision");
 
       // Multi-agent investigation: Featherless generates targeted questions,
       // then the repo-context provider (GitAgent on Lyzr) answers each against
