@@ -195,13 +195,19 @@ export class GitAgentRepoContextProvider implements RepoContextProvider {
   private applyLlmEnv(): () => void {
     const provider = (this.config.model?.split(":")[0] ?? "openai").toUpperCase();
     const keyVar = `${provider}_API_KEY`;
-    const touched = [keyVar, "LYZR_API_KEY", "GITAGENT_MODEL_BASE_URL"];
+    const touched = [keyVar, "LYZR_API_KEY", "OPENAI_API_KEY", "GITAGENT_MODEL_BASE_URL"];
     const prev = Object.fromEntries(touched.map((k) => [k, process.env[k]]));
 
     if (this.config.llmApiKey) {
       process.env[keyVar] = this.config.llmApiKey;
       // gitagent's unknown-provider path also accepts LYZR_API_KEY as a fallback.
       if (!process.env.LYZR_API_KEY) process.env.LYZR_API_KEY = this.config.llmApiKey;
+      // GitAgent v2 routes the `lyzr:` provider through pi-ai's OpenAI-compatible
+      // path: it forces model.provider="openai" and sends OPENAI_API_KEY as the
+      // Bearer token. So OPENAI_API_KEY must be the *real Lyzr key* for auth to
+      // succeed — without this every Lyzr call 401s and gitagent produces
+      // nothing. (This is the hard-won lesson from the gitarch reference agent.)
+      process.env.OPENAI_API_KEY = this.config.llmApiKey;
     }
     if (this.config.openaiBaseUrl) process.env.GITAGENT_MODEL_BASE_URL = this.config.openaiBaseUrl;
 
