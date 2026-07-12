@@ -247,3 +247,5 @@ packages/database/prisma/dev.db
 
 # Personal demo/presentation script — not a repo deliverable
 docs/DEMO.md
+.vercel
+.env*.local
