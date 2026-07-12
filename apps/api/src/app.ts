@@ -20,7 +20,16 @@ export async function buildApp(ctx: AppContext, alertProducer: AlertProducer) {
   app.decorate("ctx", ctx);
   app.decorate("alertProducer", alertProducer);
 
-  await app.register(cors, { origin: ctx.env.CORS_ORIGIN });
+  // CORS_ORIGIN may be a comma-separated list of allowed origins. Split into an
+  // array so @fastify/cors reflects a single matching origin — a comma-joined
+  // string produces an invalid multi-value Access-Control-Allow-Origin header
+  // that browsers reject.
+  const corsOrigins = ctx.env.CORS_ORIGIN.split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+  await app.register(cors, {
+    origin: corsOrigins.length === 1 ? corsOrigins[0] : corsOrigins,
+  });
   await app.register(sensible);
   await app.register(rateLimitPlugin);
   await app.register(authPlugin);
