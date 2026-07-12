@@ -25,6 +25,27 @@ answers them from the git history) produces a repo-grounded postmortem.
 
 ---
 
+## Fully TypeScript, end to end
+
+One language, one type system — **no Python, no glue between runtimes**. From the
+alert schema to the agent outputs to the React dashboard, every layer is
+TypeScript, and the contracts between them are **Zod schemas shared from a single
+package**:
+
+```
+Alert payload → Incident → Agent I/O → Safety verdict → API DTO → React props
+        (one set of Zod types in @volt-tackle/shared, imported everywhere)
+```
+
+Change the shape of a remediation and the API, the agents, and the frontend all
+fail to compile until they agree — no drift, no runtime surprises. The core is
+also **framework-shaped**: every provider (LLM, safety, memory, repo analysis,
+monitoring, deployment) sits behind a typed interface with a real adapter *and* a
+mock, wired via dependency injection (`WorkflowDeps`). An installable
+`@volttackle/core` SDK is on the [roadmap](#roadmap).
+
+---
+
 ## The problem
 
 When production breaks at a startup, the on-call engineer — often junior, often
@@ -47,6 +68,43 @@ grunt-work while the human keeps control of every real action.
   gate; a human approves, escalates, or blocks; every decision is audited.
 - **Get smarter over time** — each resolved incident's postmortem is indexed
   back into memory, so the next similar incident is faster.
+
+---
+
+## Use case
+
+**The company.** *Cartwheel*, a 25-person e-commerce startup. Engineers rotate
+on-call; there's no dedicated SRE team. Checkout is the money path.
+
+**The persona.** *Priya*, a backend engineer, is on-call. It's 2 AM. She shipped
+`checkout-api v2.15` a few hours ago.
+
+**The trigger.** Datadog fires: *checkout-api 5xx error rate jumped to 14%.*
+Orders are failing; revenue is bleeding by the minute.
+
+| Without Volt Tackle | With Volt Tackle |
+|---------------------|------------------|
+| Opens five dashboards, greps logs, checks deploy history | Auto-triaged in seconds: **Deploy Regression** |
+| Tries to recall if this happened before; Slacks a sleeping senior | Retrieves the near-identical past incident + rollback runbook from memory (Qdrant) |
+| Burns **20–40 min** just *understanding* the problem | Hands her a grounded root cause + a rollback plan |
+| Applies a risky "cowboy" fix under pressure | The fix is safety-scanned (Enkrypt) *before* she can approve |
+| Postmortem gets skipped | Approves → a blameless postmortem is drafted and indexed for next time |
+
+**The payoff:** a **30-minute panic** becomes a **1-minute informed decision** —
+and every incident makes the system smarter for the next engineer. That's the
+pitch: **reduce MTTR, block unsafe fixes, and never lose institutional knowledge
+again.**
+
+The same pipeline classifies and handles all four incident types
+(deploy regression · infra failure · dependency outage · suspicious traffic),
+and — via the multi-agent repo layer — can **postmortem an entire GitHub repo on
+demand** (Featherless asks the questions, GitAgent-on-Lyzr answers them from the
+git history).
+
+**Who it's for:** seed-to-Series-B startups with real production traffic but no
+mature SRE practice — the gap between "we have PagerDuty" and "we have a
+Google-style SRE org." The wedge: it's not replacing the engineer — it's the
+senior-engineer-in-a-box a junior on-call can lean on at 2 AM.
 
 ---
 
@@ -355,6 +413,22 @@ engineer (can approve high-risk), admin.
 - [Observability](docs/OBSERVABILITY.md) — traces, correlation IDs, what's logged
 - [Security](docs/SECURITY.md) — auth/RBAC, audit trail, TLS/at-rest assumptions
 - [ADRs](docs/adr/) — the nine major implementation decisions
+
+---
+
+## Roadmap
+
+- **`@volttackle/core` SDK (planned).** The core is already provider-agnostic and
+  DI-driven, so the natural next step is to publish the engine packages (agents,
+  workflows, providers, safety, retrieval) as an installable SDK —
+  `npm install @volttackle/core`, inject your providers, run the pipeline in your
+  own app. The one design change it needs first is a pluggable `StateStore`
+  interface so consumers bring their own database (Prisma stays the default).
+  A `create-volttackle` scaffolder would generate the full API + dashboard.
+- Surface the repo-investigation Q&A in the postmortem viewer (currently on the
+  incident detail page + timeline).
+- Turn on and verify the Kafka/Redpanda async ingestion path.
+- Real embeddings provider validated end-to-end (currently mock by default).
 
 ---
 

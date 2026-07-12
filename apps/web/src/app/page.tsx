@@ -33,7 +33,7 @@ export default function LandingPage() {
       <section className="relative z-10 mx-auto max-w-6xl px-6 pb-20 pt-16 sm:pt-24">
         <div className="inline-flex items-center gap-2 rounded-full border border-night-800 bg-night-900/70 px-3 py-1 font-mono text-xs text-volt-200">
           <span className="h-1.5 w-1.5 rounded-full bg-volt spark" />
-          AI incident response · safety-gated · multi-agent
+          Fully TypeScript · safety-gated · multi-agent
         </div>
 
         <h1 className="mt-6 max-w-4xl text-5xl font-extrabold leading-[1.02] tracking-tight text-white sm:text-7xl">
@@ -47,6 +47,11 @@ export default function LandingPage() {
           <span className="text-white">context-grounded</span> root cause, and a{" "}
           <span className="text-white">safety-validated</span> fix — then drafts the postmortem and learns
           from it. Every AI suggestion clears a mandatory safety gate before a human ever clicks approve.
+        </p>
+
+        <p className="mt-3 font-mono text-sm text-slate-500">
+          One language, end to end — from the alert schema to the dashboard. No Python, no glue between
+          runtimes.
         </p>
 
         <div className="mt-9 flex flex-wrap items-center gap-3">
@@ -126,6 +131,53 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* use case */}
+      <section className="relative z-10 border-t border-night-800/60 bg-night-950/40">
+        <div className="mx-auto max-w-6xl px-6 py-20">
+          <SectionEyebrow>Use case</SectionEyebrow>
+          <h2 className="mt-3 max-w-3xl text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            2 AM. Checkout is throwing 500s. You&apos;re on call — alone.
+          </h2>
+          <p className="mt-3 max-w-2xl text-slate-400">
+            A junior engineer at a 25-person startup shipped a deploy three hours ago. No SRE team, no
+            runbook memorized, revenue bleeding by the minute.
+          </p>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+            <div className="rounded-2xl border border-night-800 bg-night-900/40 p-6">
+              <h3 className="font-mono text-xs uppercase tracking-widest text-slate-500">Without Volt Tackle</h3>
+              <ul className="mt-4 space-y-2.5 text-sm text-slate-400">
+                <li>• Open five dashboards, grep logs, scan the deploy history.</li>
+                <li>• Try to remember if this happened before. Slack a sleeping senior.</li>
+                <li>• Burn 30+ minutes just <span className="text-slate-300">understanding</span> the problem.</li>
+                <li>• Apply a risky &ldquo;cowboy&rdquo; fix under pressure. Skip the postmortem.</li>
+              </ul>
+            </div>
+            <div className="rounded-2xl border border-volt/25 bg-night-900/60 p-6">
+              <h3 className="font-mono text-xs uppercase tracking-widest text-volt">With Volt Tackle</h3>
+              <ul className="mt-4 space-y-2.5 text-sm text-slate-300">
+                <li><span className="font-mono text-volt">1.</span> Auto-triaged in seconds: <span className="text-white">Deploy Regression</span>.</li>
+                <li><span className="font-mono text-volt">2.</span> Pulls the near-identical incident + runbook from memory.</li>
+                <li><span className="font-mono text-volt">3.</span> Hands you a grounded root cause &amp; a rollback plan.</li>
+                <li><span className="font-mono text-volt">4.</span> Safety-checks the fix, then you click <span className="text-white">Approve</span>.</li>
+                <li><span className="font-mono text-volt">5.</span> Drafts the postmortem &mdash; and remembers it for next time.</li>
+              </ul>
+            </div>
+          </div>
+
+          <p className="mt-8 max-w-3xl text-lg text-slate-300">
+            A <span className="text-volt">30-minute panic</span> becomes a{" "}
+            <span className="text-volt">1-minute informed decision</span> — and every incident makes the
+            system smarter for the next engineer.
+          </p>
+
+          <p className="mt-4 max-w-3xl text-sm text-slate-500">
+            The same pipeline handles infra failures, dependency outages, and suspicious traffic — and can
+            postmortem an entire GitHub repo on demand.
+          </p>
+        </div>
+      </section>
+
       {/* tech strip */}
       <section className="relative z-10 border-y border-night-800/60 bg-night-950/40">
         <div className="mx-auto max-w-6xl px-6 py-12">
@@ -166,7 +218,12 @@ export default function LandingPage() {
           <span className="flex items-center gap-2">
             <BoltIcon className="h-3.5 w-3.5 text-volt" /> Volt Tackle
           </span>
-          <span>AI incident response · runs fully offline with mocks · one env var to go live.</span>
+          <span className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">
+            <span>Fully TypeScript · runs offline with mocks · one env var to go live</span>
+            <span className="rounded-full border border-night-800 px-2 py-0.5 font-mono text-[10px] text-slate-400">
+              SDK &nbsp;·&nbsp; @volttackle/core (roadmap)
+            </span>
+          </span>
         </div>
       </footer>
     </div>
