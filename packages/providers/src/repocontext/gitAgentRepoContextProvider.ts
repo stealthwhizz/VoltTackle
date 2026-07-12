@@ -263,31 +263,30 @@ function parseGitAgentOutput(text: string, repo: string, request: RepoContextReq
     }
   }
 
-  // If the agent returned prose rather than strict JSON, keep its analysis as
-  // the summary — it's still real, grounded repo context for the RCA.
-  if (!parsed) {
-    const prose = text.trim();
-    if (!prose) return emptyRepoContext("gitagent", `gitagent returned no output for ${request.service}.`);
-    return {
-      available: true,
-      provider: "gitagent",
-      repo,
-      ref: null,
-      recentCommits: [],
-      changedFiles: [],
-      suspectSignals: [],
-      investigation: [],
-      summary: prose.slice(0, 2000),
-    };
-  }
-
-  const recentCommits = (parsed.recentCommits ?? []).map((c) => ({
+  const recentCommits = (parsed?.recentCommits ?? []).map((c) => ({
     sha: String(c.sha ?? "").slice(0, 7),
     author: c.author ?? "unknown",
     message: c.message ?? "",
     date: c.date ?? "",
     changedFiles: c.changedFiles ?? [],
   }));
+
+  const prose = text.trim();
+  if (!parsed) {
+    if (!prose) return emptyRepoContext("gitagent", `gitagent returned no output for ${request.service}.`);
+    const extractedCommits = extractCommitEvidence(prose);
+    return {
+      available: true,
+      provider: "gitagent",
+      repo,
+      ref: null,
+      recentCommits: extractedCommits,
+      changedFiles: [],
+      suspectSignals: extractedCommits.length > 0 ? ["GitAgent prose output contained commit evidence."] : [],
+      investigation: [],
+      summary: prose.slice(0, 2000),
+    };
+  }
 
   return {
     available: recentCommits.length > 0 || Boolean(parsed.summary),
@@ -300,4 +299,31 @@ function parseGitAgentOutput(text: string, repo: string, request: RepoContextReq
     investigation: [],
     summary: parsed.summary ?? `GitAgent analyzed ${repo} for incident on ${request.service}.`,
   };
+}
+
+function extractCommitEvidence(text: string): RepoContext["recentCommits"] {
+  const commitRegex = /(?:commit|sha|revision)\s*[:#-]?\s*([0-9a-f]{7,40})/gi;
+  const authorRegex = /author\s*[:=]\s*([^\n]+)/gi;
+  const dateRegex = /date\s*[:=]\s*([^\n]+)/gi;
+  const messageRegex = /(?:message|summary)\s*[:=]\s*([^\n]+)/gi;
+
+  const found: RepoContext["recentCommits"] = [];
+  const matches = Array.from(text.matchAll(commitRegex));
+  for (const match of matches) {
+    const sha = String(match[1] ?? "").slice(0, 7);
+    if (!sha) continue;
+    const authorMatch = authorRegex.exec(text);
+    const dateMatch = dateRegex.exec(text);
+    const messageMatch = messageRegex.exec(text);
+    found.push({
+      sha,
+      author: authorMatch?.[1]?.trim() ?? "unknown",
+      message: messageMatch?.[1]?.trim() ?? "",
+      date: dateMatch?.[1]?.trim() ?? "",
+      changedFiles: [],
+    });
+    if (found.length >= 3) break;
+  }
+
+  return found;
 }
