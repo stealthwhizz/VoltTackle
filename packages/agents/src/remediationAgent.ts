@@ -57,12 +57,29 @@ export async function runRemediationAgent(
   );
 }
 
-function buildUserPrompt(input: RemediationInput): string {
-  return [
+export function buildUserPrompt(input: RemediationInput): string {
+  const lines = [
     `Incident: ${input.incidentSummary}`,
     `Category: ${input.category}`,
     `Severity: ${SEVERITY_RISK_HINT[input.severity]}`,
     `Root cause hypothesis (confidence ${input.rootCauseConfidence}): ${input.rootCauseHypothesis}`,
     `Available grounded references: ${input.groundedReferences.join(", ") || "(none)"}`,
-  ].join("\n");
+  ];
+
+  if (input.repoContext?.available) {
+    const rc = input.repoContext;
+    const commitsText =
+      rc.recentCommits.length > 0
+        ? rc.recentCommits
+            .map((c) => `- ${c.sha} by ${c.author} (${c.date}): ${c.message}`)
+            .join("\n")
+        : "(no commits extracted)";
+    lines.push(
+      `Repository context (source: ${rc.provider}${rc.repo ? `, repo: ${rc.repo}` : ""}):`,
+      `Recent commits:\n${commitsText}`,
+      `Suspect changes:\n${rc.suspectSignals.length ? rc.suspectSignals.map((s) => `- ${s}`).join("\n") : "(none flagged)"}`,
+    );
+  }
+
+  return lines.join("\n");
 }

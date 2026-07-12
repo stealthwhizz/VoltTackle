@@ -252,6 +252,7 @@ export function buildIncidentWorkflow(deps: WorkflowDeps) {
           rootCauseHypothesis: rca.output.hypothesis,
           rootCauseConfidence: rca.output.confidence,
           groundedReferences: rca.output.groundedReferences,
+          ...(repoContext?.available ? { repoContext } : {}),
         },
         deps,
         { incidentId, correlationId },

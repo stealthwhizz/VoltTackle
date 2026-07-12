@@ -1,7 +1,41 @@
 import { describe, it, expect } from "vitest";
 import { filterGroundedReferences } from "./grounding.js";
+import { buildUserPrompt } from "./remediationAgent.js";
 
 describe("filterGroundedReferences (RCA/remediation grounding)", () => {
+  it("injects repo-specific context into the remediation prompt when repo context is available", () => {
+    const prompt = buildUserPrompt({
+      incidentSummary: "deploy regression",
+      category: "DEPLOY_REGRESSION",
+      severity: "SEV3",
+      rootCauseHypothesis: "bad rollout",
+      rootCauseConfidence: 0.8,
+      groundedReferences: ["ref:1"],
+      repoContext: {
+        available: true,
+        provider: "local-git",
+        repo: "https://github.com/example/repo",
+        ref: "main",
+        recentCommits: [
+          {
+            sha: "abc1234",
+            author: "dev",
+            message: "change cache key",
+            date: "2026-01-01",
+            changedFiles: ["src/cache.ts"],
+          },
+        ],
+        changedFiles: ["src/cache.ts"],
+        suspectSignals: ["Commit abc1234 overlaps incident terms."],
+        investigation: [],
+        summary: "repo summary",
+      },
+    });
+
+    expect(prompt).toContain("Repository context");
+    expect(prompt).toContain("https://github.com/example/repo");
+    expect(prompt).toContain("change cache key");
+  });
   it("keeps only cited references that exist in the valid set", () => {
     const cited = ["runbook:A", "hallucinated:X", "incident:B"];
     const valid = ["runbook:A", "incident:B", "doc:C"];
