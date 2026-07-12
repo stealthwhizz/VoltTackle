@@ -1,0 +1,246 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum IncidentCategory {
+  DEPLOY_REGRESSION
+  INFRA_FAILURE
+  DEPENDENCY_OUTAGE
+  SUSPICIOUS_TRAFFIC
+}
+
+enum IncidentSeverity {
+  SEV1
+  SEV2
+  SEV3
+  SEV4
+}
+
+enum IncidentStatus {
+  NEW
+  TRIAGING
+  RETRIEVING_CONTEXT
+  ANALYZING
+  AWAITING_APPROVAL
+  APPROVED
+  ESCALATED
+  BLOCKED
+  RESOLVED
+  POSTMORTEM_DRAFTED
+  CLOSED
+}
+
+enum DecisionOutcome {
+  APPROVE_FOR_REVIEW
+  ESCALATE_TO_HUMAN
+  BLOCK_UNSAFE
+}
+
+enum RiskLabel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum SafetyVerdict {
+  SAFE
+  NEEDS_REVIEW
+  UNSAFE
+}
+
+enum ApprovalAction {
+  APPROVE
+  ESCALATE
+  BLOCK
+}
+
+enum UserRole {
+  ENGINEER
+  SENIOR_ENGINEER
+  ADMIN
+}
+
+enum PostmortemStatus {
+  DRAFT
+  FINALIZED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         UserRole @default(ENGINEER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  approvals Approval[]
+  auditLogs AuditLog[]
+
+  @@map("users")
+}
+
+model Incident {
+  id          String            @id @default(uuid())
+  correlationId String          @unique @default(uuid())
+  title       String
+  service     String
+  source      String
+  externalId  String
+  status      IncidentStatus    @default(NEW)
+  category    IncidentCategory?
+  severity    IncidentSeverity  @default(SEV3)
+  description String
+  tags        String[]          @default([])
+  rawAlert    Json?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  resolvedAt  DateTime?
+
+  events          IncidentEvent[]
+  recommendations IncidentRecommendation[]
+  approvals       Approval[]
+  postmortem      Postmortem?
+
+  @@unique([source, externalId])
+  @@index([status])
+  @@index([category])
+  @@index([service])
+  @@map("incidents")
+}
+
+model IncidentEvent {
+  id         String   @id @default(uuid())
+  incidentId String
+  type       String
+  actor      String
+  message    String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId])
+  @@map("incident_events")
+}
+
+model IncidentRecommendation {
+  id                    String            @id @default(uuid())
+  incidentId            String
+  rootCauseHypothesis   String
+  rootCauseConfidence    Float
+  summary               String
+  actionSteps           Json
+  riskLabel             RiskLabel
+  rollbackGuidance      String
+  confidenceScore       Float
+  groundedReferences    String[]          @default([])
+  safetyVerdict         SafetyVerdict?
+  safetyFlags           Json              @default("[]")
+  decisionOutcome       DecisionOutcome?
+  promptVersion         String
+  createdAt             DateTime          @default(now())
+
+  incident   Incident   @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  approvals  Approval[]
+
+  @@index([incidentId])
+  @@map("incident_recommendations")
+}
+
+model Approval {
+  id               String         @id @default(uuid())
+  incidentId       String
+  recommendationId String
+  action           ApprovalAction
+  actorId          String
+  reason           String?
+  createdAt        DateTime       @default(now())
+
+  incident       Incident                @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  recommendation IncidentRecommendation  @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+  actor          User                    @relation(fields: [actorId], references: [id])
+
+  @@index([incidentId])
+  @@map("approvals")
+}
+
+model Postmortem {
+  id           String           @id @default(uuid())
+  incidentId   String           @unique
+  title        String
+  summary      String
+  impact       String
+  rootCause    String
+  timeline     Json
+  actionItems  Json
+  status       PostmortemStatus @default(DRAFT)
+  promptVersion String
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@map("postmortems")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?
+  actorLabel String
+  action     String
+  entityType String
+  entityId   String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id])
+
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+model PromptVersion {
+  id         String   @id @default(uuid())
+  agentName  String
+  versionId  String
+  filePath   String
+  checksum   String
+  createdAt  DateTime @default(now())
+
+  @@unique([agentName, versionId])
+  @@map("prompt_versions")
+}
+
+model RunbookSource {
+  id            String   @id @default(uuid())
+  title         String
+  service       String?
+  content       String
+  tags          String[] @default([])
+  qdrantPointId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("runbook_sources")
+}
+
+model DocumentSource {
+  id            String   @id @default(uuid())
+  title         String
+  service       String?
+  docType       String
+  content       String
+  tags          String[] @default([])
+  qdrantPointId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("document_sources")
+}

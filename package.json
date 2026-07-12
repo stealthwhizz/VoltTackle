@@ -1,0 +1,31 @@
+{
+  "name": "volt-tackle",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AI incident response and post-mortem system for startup engineering teams",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev:api": "npm run dev -w @volt-tackle/api",
+    "dev:web": "npm run dev -w @volt-tackle/web",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "db:generate": "npm run db:generate -w @volt-tackle/database",
+    "db:migrate": "npm run db:migrate -w @volt-tackle/database",
+    "db:seed": "npm run db:seed -w @volt-tackle/database",
+    "qdrant:bootstrap": "npm run bootstrap -w @volt-tackle/retrieval",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "devDependencies": {
+    "typescript": "5.6.3",
+    "tsx": "4.19.2",
+    "@types/node": "20.16.11"
+  }
+}

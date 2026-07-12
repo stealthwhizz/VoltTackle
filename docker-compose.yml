@@ -1,0 +1,82 @@
+name: volt-tackle
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: volt-tackle-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: volttackle
+      POSTGRES_PASSWORD: volttackle
+      POSTGRES_DB: volttackle
+    ports:
+      # Host port 15432 (not 5432) to avoid clashing with any pre-existing
+      # local PostgreSQL install/service on the developer's machine, and
+      # deliberately outside Windows' dynamic/excluded TCP port ranges
+      # (`netsh interface ipv4 show excludedportrange protocol=tcp`).
+      - "15432:5432"
+    volumes:
+      - volt_tackle_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U volttackle -d volttackle"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  qdrant:
+    image: qdrant/qdrant:v1.18.2
+    container_name: volt-tackle-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - volt_tackle_qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redpanda:
+    image: redpandadata/redpanda:v24.2.10
+    container_name: volt-tackle-redpanda
+    restart: unless-stopped
+    command:
+      - redpanda
+      - start
+      - --smp=1
+      - --overprovisioned
+      - --node-id=0
+      - --kafka-addr=PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr=PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+      - --pandaproxy-addr=0.0.0.0:8082
+      - --advertise-pandaproxy-addr=localhost:8082
+      - --schema-registry-addr=0.0.0.0:8081
+    ports:
+      - "9092:9092"
+      - "8081:8081"
+      - "8082:8082"
+    volumes:
+      - volt_tackle_redpanda_data:/var/lib/redpanda/data
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster info --brokers localhost:9092"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redpanda-console:
+    image: redpandadata/console:v2.7.2
+    container_name: volt-tackle-redpanda-console
+    restart: unless-stopped
+    environment:
+      KAFKA_BROKERS: redpanda:29092
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redpanda
+
+volumes:
+  volt_tackle_postgres_data:
+  volt_tackle_qdrant_data:
+  volt_tackle_redpanda_data:

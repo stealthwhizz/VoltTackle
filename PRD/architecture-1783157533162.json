@@ -1,0 +1,1071 @@
+{
+  "version": "1.0",
+  "diagramId": "e4282479-cc4f-47a5-934a-7ec71ce077d2",
+  "title": "Architecture Diagram",
+  "nodes": [
+    {
+      "id": "volt-tackle-ui",
+      "type": "frontend",
+      "label": "Volt Tackle UI",
+      "generic_name": "incident dashboard",
+      "ports": [
+        {
+          "id": "out-api",
+          "label": "API Requests",
+          "side": "bottom"
+        },
+        {
+          "id": "in",
+          "label": "Input",
+          "side": "left"
+        },
+        {
+          "id": "out",
+          "label": "Output",
+          "side": "right"
+        }
+      ],
+      "data": {
+        "description": "Next.js dashboard for on-call engineers to view incidents, approve remediations, and review postmortems.",
+        "tech": [
+          "react",
+          "nextjs",
+          "typescript",
+          "tailwind-css"
+        ],
+        "cloud": "aws",
+        "isolated": false
+      }
+    },
+    {
+      "id": "api-gateway",
+      "type": "api-gateway",
+      "label": "API Gateway",
+      "generic_name": "api gateway",
+      "ports": [
+        {
+          "id": "in-ui",
+          "label": "UI Inbound",
+          "side": "top"
+        },
+        {
+          "id": "in-alerts",
+          "label": "Alert Inbound",
+          "side": "left"
+        },
+        {
+          "id": "out-mastra",
+          "label": "Orchestration",
+          "side": "bottom"
+        },
+        {
+          "id": "out",
+          "label": "Output",
+          "side": "right"
+        },
+        {
+          "id": "left-2",
+          "label": "Left 2",
+          "side": "left"
+        },
+        {
+          "id": "left-3",
+          "label": "Left 3",
+          "side": "left"
+        },
+        {
+          "id": "left-4",
+          "label": "Left 4",
+          "side": "left"
+        },
+        {
+          "id": "right-2",
+          "side": "right",
+          "label": "Right 2"
+        }
+      ],
+      "data": {
+        "description": "Central entry point for alerts and user actions. Handles authentication and request routing.",
+        "tech": [
+          "fastify",
+          "typescript",
+          "zod"
+        ],
+        "isolated": false
+      }
+    },
+    {
+      "id": "mastra-orchestrator",
+      "type": "service",
+      "label": "Mastra Orchestrator (HITL Workflow)",
+      "generic_name": "workflow orchestrator",
+      "ports": [
+        {
+          "id": "in-api",
+          "label": "API Inbound",
+          "side": "top"
+        },
+        {
+          "id": "out-agents",
+          "label": "Agent Dispatcher",
+          "side": "right"
+        },
+        {
+          "id": "out-db",
+          "label": "State Storage",
+          "side": "bottom"
+        },
+        {
+          "id": "in",
+          "label": "Input",
+          "side": "left"
+        },
+        {
+          "id": "right-2",
+          "label": "Right 2",
+          "side": "right"
+        },
+        {
+          "id": "right-3",
+          "label": "Right 3",
+          "side": "right"
+        },
+        {
+          "id": "right-4",
+          "label": "Right 4",
+          "side": "right"
+        },
+        {
+          "id": "right-5",
+          "label": "Right 5",
+          "side": "right"
+        },
+        {
+          "id": "right-6",
+          "label": "Right 6",
+          "side": "right"
+        },
+        {
+          "id": "right-7",
+          "label": "Right 7",
+          "side": "right"
+        },
+        {
+          "id": "left-2",
+          "label": "Left 2",
+          "side": "left"
+        },
+        {
+          "id": "left-3",
+          "side": "left",
+          "label": "Left 3"
+        }
+      ],
+      "data": {
+        "description": "Mastra workflow with human-in-the-loop branching and state management.",
+        "tech": [
+          "Mastra",
+          "TypeScript"
+        ]
+      }
+    },
+    {
+      "id": "triage-agent",
+      "type": "service",
+      "label": "Incident Triage Agent",
+      "generic_name": "triage agent",
+      "ports": [
+        {
+          "id": "in-mastra",
+          "label": "Task Inbound",
+          "side": "left"
+        },
+        {
+          "id": "out-tools",
+          "label": "Tool Calls",
+          "side": "right"
+        },
+        {
+          "id": "right-2",
+          "side": "right",
+          "label": "Right 2"
+        }
+      ],
+      "data": {
+        "description": "Classifies incidents into: deploy regression, infra failure, dependency outage, suspicious traffic.",
+        "tech": [
+          "TypeScript",
+          "Mastra Agent",
+          "OpenAI"
+        ]
+      }
+    },
+    {
+      "id": "retrieval-agent",
+      "type": "service",
+      "label": "Memory & Runbook Retrieval Agent",
+      "generic_name": "retrieval agent",
+      "ports": [
+        {
+          "id": "in-mastra",
+          "label": "Task Inbound",
+          "side": "left"
+        },
+        {
+          "id": "out-qdrant",
+          "label": "Vector Search",
+          "side": "right"
+        }
+      ],
+      "data": {
+        "description": "Performs semantic search over past incidents, runbooks, and service documentation.",
+        "tech": [
+          "mastra-agent",
+          "qdrant-sdk",
+          "typescript"
+        ],
+        "isolated": false
+      }
+    },
+    {
+      "id": "root-cause-agent",
+      "type": "service",
+      "label": "Root Cause Agent",
+      "generic_name": "root cause agent",
+      "ports": [
+        {
+          "id": "in-mastra",
+          "label": "Task Inbound",
+          "side": "left"
+        },
+        {
+          "id": "out-mastra-res",
+          "label": "Analysis Result",
+          "side": "right"
+        },
+        {
+          "id": "right-2",
+          "side": "right",
+          "label": "Right 2"
+        }
+      ],
+      "data": {
+        "description": "Analyzes logs, metrics, and retrieved context to identify the likely root cause.",
+        "tech": [
+          "mastra-agent",
+          "typescript",
+          "anthropic-claude-3-5-sonnet"
+        ],
+        "isolated": true
+      }
+    },
+    {
+      "id": "remediation-agent",
+      "type": "service",
+      "label": "Remediation Agent",
+      "generic_name": "remediation agent",
+      "ports": [
+        {
+          "id": "in-mastra",
+          "label": "Task Inbound",
+          "side": "left"
+        },
+        {
+          "id": "out-safety-check",
+          "label": "Safety Check",
+          "side": "right"
+        }
+      ],
+      "data": {
+        "description": "Generates remediation steps with risk labels and rollback guidance.",
+        "tech": [
+          "mastra-agent",
+          "typescript"
+        ],
+        "isolated": false
+      }
+    },
+    {
+      "id": "safety-validator-agent",
+      "type": "service",
+      "label": "Safety Validator Agent",
+      "generic_name": "safety validator agent",
+      "ports": [
+        {
+          "id": "in-remediation",
+          "label": "Remediation Inbound",
+          "side": "left"
+        },
+        {
+          "id": "out-enkrypt-api",
+          "label": "Enkrypt API Call",
+          "side": "right"
+        },
+        {
+          "id": "right-2",
+          "side": "right",
+          "label": "Right 2"
+        }
+      ],
+      "data": {
+        "description": "Validates remediation suggestions using Enkrypt AI to detect unsafe or hallucinated outputs.",
+        "tech": [
+          "enkrypt-ai-sdk",
+          "typescript"
+        ],
+        "isolated": false
+      }
+    },
+    {
+      "id": "postmortem-agent",
+      "type": "service",
+      "label": "Postmortem Agent",
+      "generic_name": "postmortem agent",
+      "ports": [
+        {
+          "id": "in-mastra-pm",
+          "label": "Task Inbound",
+          "side": "left"
+        },
+        {
+          "id": "out-mastra-pm-res",
+          "label": "Draft Result",
+          "side": "right"
+        },
+        {
+          "id": "left-2",
+          "side": "left",
+          "label": "Left 2"
+        }
+      ],
+      "data": {
+        "description": "Drafts blameless postmortems with timelines, impact analysis, and follow-up actions.",
+        "tech": [
+          "mastra-agent",
+          "typescript"
+        ],
+        "isolated": true
+      }
+    },
+    {
+      "id": "qdrant-db",
+      "type": "database",
+      "label": "Qdrant Memory Store",
+      "generic_name": "vector database",
+      "ports": [
+        {
+          "id": "in-retrieval-search",
+          "label": "Search Inbound",
+          "side": "left"
+        },
+        {
+          "id": "in-learning-loop",
+          "label": "Learning Inbound",
+          "side": "bottom"
+        },
+        {
+          "id": "out",
+          "label": "Output",
+          "side": "right"
+        },
+        {
+          "id": "left-2",
+          "label": "Left 2",
+          "side": "left"
+        },
+        {
+          "id": "left-3",
+          "side": "left",
+          "label": "Left 3"
+        }
+      ],
+      "data": {
+        "description": "Stores incidents, runbooks, postmortems, and service docs for semantic retrieval.",
+        "tech": [
+          "Qdrant",
+          "Vector DB"
+        ]
+      }
+    },
+    {
+      "id": "main-db",
+      "type": "database",
+      "label": "Main DB (Postgres)",
+      "generic_name": "relational database",
+      "ports": [
+        {
+          "id": "in-mastra-state",
+          "label": "State Inbound",
+          "side": "top"
+        },
+        {
+          "id": "in",
+          "label": "Input",
+          "side": "left"
+        },
+        {
+          "id": "out",
+          "label": "Output",
+          "side": "right"
+        }
+      ],
+      "data": {
+        "description": "Relational database for incident metadata, user sessions, and workflow state.",
+        "tech": [
+          "postgresql",
+          "prisma-orm"
+        ],
+        "isolated": false
+      }
+    },
+    {
+      "id": "monitoring-api-node",
+      "type": "service",
+      "label": "Monitoring Tools (Datadog/Prometheus)",
+      "generic_name": "monitoring tools",
+      "ports": [
+        {
+          "id": "in-triage-metrics",
+          "label": "Metrics Request",
+          "side": "left"
+        },
+        {
+          "id": "out-alerts-to-gw",
+          "label": "Alert Webhook",
+          "side": "right"
+        },
+        {
+          "id": "left-2",
+          "label": "Left 2",
+          "side": "left"
+        },
+        {
+          "id": "right-2",
+          "label": "Right 2",
+          "side": "right"
+        },
+        {
+          "id": "left-3",
+          "side": "left",
+          "label": "Left 3"
+        }
+      ],
+      "data": {
+        "isolated": false,
+        "tech": [
+          "datadog-api",
+          "prometheus-api"
+        ],
+        "description": "External monitoring and observability platform (e.g., Datadog, Prometheus)."
+      }
+    },
+    {
+      "id": "deployment-api-node",
+      "type": "service",
+      "label": "Deployment Tools (GitHub/GitLab)",
+      "generic_name": "deployment tools",
+      "ports": [
+        {
+          "id": "in-triage-deploys",
+          "label": "Deploy Metadata Request",
+          "side": "left"
+        },
+        {
+          "id": "out",
+          "label": "Output",
+          "side": "right"
+        },
+        {
+          "id": "left-2",
+          "label": "Left 2",
+          "side": "left"
+        },
+        {
+          "id": "left-3",
+          "side": "left",
+          "label": "Left 3"
+        }
+      ],
+      "data": {
+        "description": "External CI/CD and deployment metadata (e.g., GitHub Actions).",
+        "tech": [
+          "github-api",
+          "gitlab-api"
+        ],
+        "isolated": true
+      }
+    },
+    {
+      "id": "enkrypt-ai-node-ext",
+      "type": "service",
+      "label": "Enkrypt AI Platform",
+      "generic_name": "safety platform",
+      "ports": [
+        {
+          "id": "in-safety-eval",
+          "label": "Eval Request",
+          "side": "left"
+        },
+        {
+          "id": "out",
+          "label": "Output",
+          "side": "right"
+        }
+      ],
+      "data": {
+        "isolated": true,
+        "tech": [
+          "enkrypt-ai-platform"
+        ],
+        "description": "Safety and evaluation layer to validate LLM outputs and reduce risky guidance."
+      }
+    },
+    {
+      "id": "decision-gate",
+      "type": "service",
+      "label": "Decision Gate: Approve / Escalate / Block",
+      "generic_name": "decision gate",
+      "ports": [
+        {
+          "id": "in-safety",
+          "label": "from safety",
+          "side": "left"
+        },
+        {
+          "id": "out-ui",
+          "label": "to ui",
+          "side": "top"
+        },
+        {
+          "id": "out-resolved",
+          "label": "to postmortem",
+          "side": "right"
+        },
+        {
+          "id": "right-2",
+          "label": "Right 2",
+          "side": "right"
+        },
+        {
+          "id": "right-3",
+          "label": "Right 3",
+          "side": "right"
+        },
+        {
+          "id": "right-4",
+          "side": "right",
+          "label": "Right 4"
+        }
+      ],
+      "data": {
+        "description": "Logic gate for remediation: approve action, escalate to human, or block unsafe remediation.",
+        "tech": [
+          "Mastra Workflow",
+          "TypeScript"
+        ]
+      }
+    },
+    {
+      "id": "event-streaming-layer",
+      "type": "message-queue",
+      "label": "Event Streaming Layer (Kafka)",
+      "generic_name": "event stream",
+      "ports": [
+        {
+          "id": "in-alerts",
+          "label": "alerts-in",
+          "side": "left"
+        },
+        {
+          "id": "out-api",
+          "label": "api-out",
+          "side": "right"
+        }
+      ],
+      "data": {
+        "description": "Ingests high-volume alert webhooks for asynchronous processing.",
+        "tech": [
+          "Kafka",
+          "Redpanda"
+        ],
+        "isolated": false
+      }
+    },
+    {
+      "id": "observability-agent",
+      "type": "service",
+      "label": "Observability Agent",
+      "generic_name": "observability agent",
+      "ports": [
+        {
+          "id": "mon-agents",
+          "label": "mon-agents",
+          "side": "bottom"
+        },
+        {
+          "id": "mon-services",
+          "label": "mon-services",
+          "side": "bottom"
+        },
+        {
+          "id": "report-health",
+          "label": "report-health",
+          "side": "right"
+        },
+        {
+          "id": "in",
+          "label": "in",
+          "side": "left"
+        },
+        {
+          "id": "right-2",
+          "label": "Right 2",
+          "side": "right"
+        },
+        {
+          "id": "right-3",
+          "label": "Right 3",
+          "side": "right"
+        }
+      ],
+      "data": {
+        "description": "Monitors agent health, workflow latency, and service availability.",
+        "tech": [
+          "OpenTelemetry",
+          "Prometheus",
+          "Grafana"
+        ],
+        "isolated": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "ui-to-api-gw-actions",
+      "source": {
+        "nodeId": "volt-tackle-ui",
+        "portId": "out"
+      },
+      "target": {
+        "nodeId": "api-gateway",
+        "portId": "in-alerts"
+      },
+      "type": "http",
+      "label": "User Actions"
+    },
+    {
+      "id": "alerts-to-gw",
+      "source": {
+        "nodeId": "monitoring-api-node",
+        "portId": "out-alerts-to-gw"
+      },
+      "target": {
+        "nodeId": "api-gateway",
+        "portId": "left-2"
+      },
+      "type": "http",
+      "label": "Webhooks"
+    },
+    {
+      "id": "api-gw-to-mastra-trigger",
+      "source": {
+        "nodeId": "api-gateway",
+        "portId": "out"
+      },
+      "target": {
+        "nodeId": "mastra-orchestrator",
+        "portId": "in"
+      },
+      "type": "internal-api",
+      "label": "Trigger Workflow"
+    },
+    {
+      "id": "mastra-to-triage-task",
+      "source": {
+        "nodeId": "mastra-orchestrator",
+        "portId": "out-agents"
+      },
+      "target": {
+        "nodeId": "triage-agent",
+        "portId": "in-mastra"
+      },
+      "type": "internal-api",
+      "label": "Triage Task"
+    },
+    {
+      "id": "triage-to-mon-fetch",
+      "source": {
+        "nodeId": "triage-agent",
+        "portId": "out-tools"
+      },
+      "target": {
+        "nodeId": "monitoring-api-node",
+        "portId": "in-triage-metrics"
+      },
+      "type": "internal-api",
+      "label": "Fetch Logs-Metrics"
+    },
+    {
+      "id": "triage-to-deploy-fetch",
+      "source": {
+        "nodeId": "triage-agent",
+        "portId": "right-2"
+      },
+      "target": {
+        "nodeId": "deployment-api-node",
+        "portId": "in-triage-deploys"
+      },
+      "type": "internal-api",
+      "label": "Fetch Deploys"
+    },
+    {
+      "id": "mastra-to-retrieval-task",
+      "source": {
+        "nodeId": "mastra-orchestrator",
+        "portId": "right-2"
+      },
+      "target": {
+        "nodeId": "retrieval-agent",
+        "portId": "in-mastra"
+      },
+      "type": "internal-api",
+      "label": "Retrieval Task"
+    },
+    {
+      "id": "retrieval-to-qdrant-search",
+      "source": {
+        "nodeId": "retrieval-agent",
+        "portId": "out-qdrant"
+      },
+      "target": {
+        "nodeId": "qdrant-db",
+        "portId": "in-retrieval-search"
+      },
+      "type": "database",
+      "label": "Semantic Search"
+    },
+    {
+      "id": "mastra-to-rca-task",
+      "source": {
+        "nodeId": "mastra-orchestrator",
+        "portId": "right-3"
+      },
+      "target": {
+        "nodeId": "root-cause-agent",
+        "portId": "in-mastra"
+      },
+      "type": "internal-api",
+      "label": "Analysis Task"
+    },
+    {
+      "id": "mastra-to-remediation-task",
+      "source": {
+        "nodeId": "mastra-orchestrator",
+        "portId": "right-4"
+      },
+      "target": {
+        "nodeId": "remediation-agent",
+        "portId": "in-mastra"
+      },
+      "type": "internal-api",
+      "label": "Remediation Task"
+    },
+    {
+      "id": "remediation-to-sva-validate",
+      "source": {
+        "nodeId": "remediation-agent",
+        "portId": "out-safety-check"
+      },
+      "target": {
+        "nodeId": "safety-validator-agent",
+        "portId": "in-remediation"
+      },
+      "type": "internal-api",
+      "label": "Validate Output"
+    },
+    {
+      "id": "sva-to-enkrypt-eval",
+      "source": {
+        "nodeId": "safety-validator-agent",
+        "portId": "out-enkrypt-api"
+      },
+      "target": {
+        "nodeId": "enkrypt-ai-node-ext",
+        "portId": "in-safety-eval"
+      },
+      "type": "internal-api",
+      "label": "Safety Eval"
+    },
+    {
+      "id": "mastra-to-postmortem-task",
+      "source": {
+        "nodeId": "mastra-orchestrator",
+        "portId": "right-5"
+      },
+      "target": {
+        "nodeId": "postmortem-agent",
+        "portId": "in-mastra-pm"
+      },
+      "type": "internal-api",
+      "label": "Postmortem Task"
+    },
+    {
+      "id": "mastra-to-pg-persist",
+      "source": {
+        "nodeId": "mastra-orchestrator",
+        "portId": "right-6"
+      },
+      "target": {
+        "nodeId": "main-db",
+        "portId": "in"
+      },
+      "type": "database",
+      "label": "Persist State"
+    },
+    {
+      "id": "mastra-to-qdrant-learning-loop-direct",
+      "source": {
+        "nodeId": "mastra-orchestrator",
+        "portId": "right-7"
+      },
+      "target": {
+        "nodeId": "qdrant-db",
+        "portId": "left-2"
+      },
+      "type": "database",
+      "label": "Learning Loop"
+    },
+    {
+      "id": "pa-to-qdrant-learning-loop-final",
+      "source": {
+        "nodeId": "postmortem-agent",
+        "portId": "out-mastra-pm-res"
+      },
+      "target": {
+        "nodeId": "qdrant-db",
+        "portId": "left-3"
+      },
+      "type": "database",
+      "label": "Learning Loop"
+    },
+    {
+      "id": "sva-to-gate-guidance",
+      "source": {
+        "nodeId": "safety-validator-agent",
+        "portId": "right-2"
+      },
+      "target": {
+        "nodeId": "decision-gate",
+        "portId": "in-safety"
+      },
+      "type": "internal-api",
+      "label": "Guidance to Gate"
+    },
+    {
+      "id": "gate-to-ui-escalate",
+      "source": {
+        "nodeId": "decision-gate",
+        "portId": "out-resolved"
+      },
+      "target": {
+        "nodeId": "volt-tackle-ui",
+        "portId": "in"
+      },
+      "type": "http",
+      "label": "Escalate to Human"
+    },
+    {
+      "id": "gate-to-pa-resolved",
+      "source": {
+        "nodeId": "decision-gate",
+        "portId": "right-2"
+      },
+      "target": {
+        "nodeId": "postmortem-agent",
+        "portId": "left-2"
+      },
+      "type": "internal-api",
+      "label": "Resolved"
+    },
+    {
+      "id": "gate-to-deploy-approve-action",
+      "source": {
+        "nodeId": "decision-gate",
+        "portId": "right-3"
+      },
+      "target": {
+        "nodeId": "deployment-api-node",
+        "portId": "left-2"
+      },
+      "type": "internal-api",
+      "label": "Approve Action"
+    },
+    {
+      "id": "gate-to-mastra-block-unsafe",
+      "source": {
+        "nodeId": "decision-gate",
+        "portId": "right-4"
+      },
+      "target": {
+        "nodeId": "mastra-orchestrator",
+        "portId": "left-2"
+      },
+      "type": "internal-api",
+      "label": "Block Unsafe"
+    },
+    {
+      "id": "rca-to-mon-fetch-metrics-deploys",
+      "source": {
+        "nodeId": "root-cause-agent",
+        "portId": "out-mastra-res"
+      },
+      "target": {
+        "nodeId": "monitoring-api-node",
+        "portId": "left-2"
+      },
+      "type": "internal-api",
+      "label": "Fetch Metrics-Deploys"
+    },
+    {
+      "id": "rca-to-deploy-fetch-code-info",
+      "source": {
+        "nodeId": "root-cause-agent",
+        "portId": "right-2"
+      },
+      "target": {
+        "nodeId": "deployment-api-node",
+        "portId": "left-3"
+      },
+      "type": "internal-api",
+      "label": "Fetch Code Info"
+    },
+    {
+      "id": "mon-to-event-stream",
+      "source": {
+        "nodeId": "monitoring-api-node",
+        "portId": "right-2"
+      },
+      "target": {
+        "nodeId": "event-streaming-layer",
+        "portId": "in-alerts"
+      },
+      "type": "event-stream",
+      "label": "Alert Webhooks"
+    },
+    {
+      "id": "event-stream-to-api-gw",
+      "source": {
+        "nodeId": "event-streaming-layer",
+        "portId": "out-api"
+      },
+      "target": {
+        "nodeId": "api-gateway",
+        "portId": "left-3"
+      },
+      "type": "internal-api",
+      "label": "Ingest Alerts"
+    },
+    {
+      "id": "obs-to-mastra-monitor-agents",
+      "source": {
+        "nodeId": "observability-agent",
+        "portId": "report-health"
+      },
+      "target": {
+        "nodeId": "mastra-orchestrator",
+        "portId": "left-3"
+      },
+      "type": "internal-api",
+      "label": "Monitor Agents"
+    },
+    {
+      "id": "obs-to-api-gw-monitor-services",
+      "source": {
+        "nodeId": "observability-agent",
+        "portId": "right-2"
+      },
+      "target": {
+        "nodeId": "api-gateway",
+        "portId": "left-4"
+      },
+      "type": "internal-api",
+      "label": "Monitor Services"
+    },
+    {
+      "id": "obs-to-mon-report-health",
+      "source": {
+        "nodeId": "observability-agent",
+        "portId": "right-3"
+      },
+      "target": {
+        "nodeId": "monitoring-api-node",
+        "portId": "left-3"
+      },
+      "type": "internal-api",
+      "label": "Report Health"
+    },
+    {
+      "id": "5d31a54a-0fb6-4ed8-8732-59bff5a014c6",
+      "source": {
+        "nodeId": "api-gateway",
+        "portId": "right-2"
+      },
+      "target": {
+        "nodeId": "observability-agent",
+        "portId": "in"
+      },
+      "type": "internal-api",
+      "label": null
+    }
+  ],
+  "groups": [
+    {
+      "children": [
+        "volt-tackle-ui"
+      ],
+      "id": "client-layer-group",
+      "label": "Client Layer"
+    },
+    {
+      "children": [
+        "api-gateway",
+        "mastra-orchestrator",
+        "decision-gate",
+        "observability-agent",
+        "event-streaming-layer"
+      ],
+      "id": "orchestration-control-layer-group",
+      "label": "Orchestration & Control Layer"
+    },
+    {
+      "children": [
+        "triage-agent",
+        "retrieval-agent",
+        "root-cause-agent",
+        "remediation-agent",
+        "safety-validator-agent",
+        "postmortem-agent"
+      ],
+      "id": "ai-agent-fleet-group",
+      "label": "AI Agent Fleet"
+    },
+    {
+      "children": [
+        "qdrant-db",
+        "main-db"
+      ],
+      "id": "persistence-memory-layer-group",
+      "label": "Persistence & Memory Layer"
+    },
+    {
+      "children": [
+        "monitoring-api-node",
+        "deployment-api-node",
+        "enkrypt-ai-node-ext"
+      ],
+      "id": "external-platforms-group",
+      "label": "External Platforms"
+    }
+  ],
+  "metadata": {}
+}

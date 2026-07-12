@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+/* Electric identity: yellow "voltage" on a blue-black night sky. Single theme
+   by design — this is a deliberately neon world. */
+@theme {
+  --color-volt-50: #fffbe6;
+  --color-volt-100: #fff4bf;
+  --color-volt-200: #ffe985;
+  --color-volt-300: #ffdd47;
+  --color-volt-400: #ffd60a;
+  --color-volt-500: #f5c400;
+  --color-volt-600: #cc9d00;
+  --color-volt: #ffd60a;
+  --color-volt-bright: #ffe94d;
+
+  --color-night-950: #06070d;
+  --color-night-900: #0a0c15;
+  --color-night-850: #0e1120;
+  --color-night-800: #141828;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  background-color: #06070d;
+  color: #e7ecf5;
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(60% 40% at 85% -10%, rgba(255, 214, 10, 0.1), transparent 60%),
+    radial-gradient(50% 40% at 0% 0%, rgba(255, 214, 10, 0.05), transparent 55%);
+  background-attachment: fixed;
+}
+
+/* faint circuit grid */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(255, 214, 10, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 214, 10, 0.045) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+/* yellow voltage glow on interactive/brand elements */
+.volt-glow {
+  box-shadow: 0 0 0 1px rgba(255, 214, 10, 0.35), 0 8px 30px -8px rgba(255, 214, 10, 0.5);
+}
+.volt-glow-sm {
+  box-shadow: 0 0 18px -4px rgba(255, 214, 10, 0.55);
+}
+.volt-text-glow {
+  text-shadow: 0 0 24px rgba(255, 214, 10, 0.55);
+}
+
+/* animated spark dot */
+.spark {
+  animation: sparkPulse 2.4s ease-out infinite;
+}
+@keyframes sparkPulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 214, 10, 0.6); }
+  70% { box-shadow: 0 0 0 12px rgba(255, 214, 10, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 214, 10, 0); }
+}
+
+/* slow ambient flicker for the hero bolt */
+.flicker {
+  animation: flicker 5s linear infinite;
+}
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.55; }
+  94% { opacity: 1; }
+  96% { opacity: 0.7; }
+  97% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spark, .flicker { animation: none; }
+}
+
+/* traveling current line (used on the landing "wire") */
+.current-line {
+  background: linear-gradient(90deg, transparent, var(--color-volt), transparent);
+  background-size: 200% 100%;
+  animation: current 3s linear infinite;
+}
+@keyframes current {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .current-line { animation: none; }
+}

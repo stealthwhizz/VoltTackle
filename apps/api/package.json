@@ -1,0 +1,37 @@
+{
+  "name": "@volt-tackle/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@volt-tackle/shared": "0.1.0",
+    "@volt-tackle/database": "0.1.0",
+    "@volt-tackle/providers": "0.1.0",
+    "@volt-tackle/safety": "0.1.0",
+    "@volt-tackle/retrieval": "0.1.0",
+    "@volt-tackle/agents": "0.1.0",
+    "@volt-tackle/workflows": "0.1.0",
+    "@volt-tackle/observability": "0.1.0",
+    "@qdrant/js-client-rest": "1.18.0",
+    "fastify": "5.10.0",
+    "fastify-plugin": "6.0.0",
+    "@fastify/cors": "11.2.0",
+    "@fastify/jwt": "10.1.0",
+    "@fastify/rate-limit": "11.1.0",
+    "@fastify/sensible": "6.0.4",
+    "bcryptjs": "2.4.3",
+    "dotenv": "17.4.2",
+    "kafkajs": "2.2.4",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "typescript": "5.6.3",
+    "tsx": "4.23.0",
+    "@types/bcryptjs": "2.4.6"
+  }
+}

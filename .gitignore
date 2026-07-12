@@ -216,3 +216,34 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+.claude/
+
+# ---- Node / TypeScript monorepo ----
+node_modules/
+dist/
+.turbo/
+*.tsbuildinfo
+npm-debug.log*
+
+# Env files (keep .env.example tracked)
+.env
+.env.local
+.env.*.local
+apps/*/.env
+apps/*/.env.local
+packages/*/.env
+packages/*/.env.local
+
+# Next.js
+apps/web/.next/
+apps/web/out/
+
+# Prisma
+packages/database/prisma/dev.db
+
+# Docker volumes are managed by Docker itself, nothing to ignore here.
+.gitagent/
+
+# Personal demo/presentation script — not a repo deliverable
+docs/DEMO.md
