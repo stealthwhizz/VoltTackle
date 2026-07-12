@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { initTracing } from "@volt-tackle/observability";
 import { loadEnv } from "./env.js";
 import { buildContext } from "./context.js";
@@ -20,6 +19,7 @@ async function main() {
   ctx.logger.info(
     {
       llmProvider: ctx.llmProvider.name,
+      repoContextProvider: ctx.repoContextProvider.name,
       embeddingsProvider: ctx.embeddingsProvider.name,
       safetyProvider: ctx.safetyAdapter.name,
       monitoringProvider: ctx.monitoringProvider.name,
