@@ -409,6 +409,7 @@ engineer (can approve high-risk), admin.
 ## Documentation
 
 - [Setup guide](docs/SETUP.md) — prerequisites, env vars, troubleshooting
+- [Deploy on Render](docs/DEPLOY-RENDER.md) — full stack (web + API + Postgres + Qdrant) via Blueprint
 - [GitAgent layer](docs/GITAGENT.md) — repo-context providers, Lyzr/Featherless
 - [Observability](docs/OBSERVABILITY.md) — traces, correlation IDs, what's logged
 - [Security](docs/SECURITY.md) — auth/RBAC, audit trail, TLS/at-rest assumptions
