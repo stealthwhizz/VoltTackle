@@ -8,6 +8,7 @@ import { Badge } from "@/components/Badge";
 import { RecommendationPanel } from "@/components/RecommendationPanel";
 import { Timeline } from "@/components/Timeline";
 import { PostmortemViewer } from "@/components/PostmortemViewer";
+import { RepoInvestigationPanel } from "@/components/RepoInvestigationPanel";
 import {
   CATEGORY_LABELS,
   STATUS_LABELS,
@@ -69,6 +70,8 @@ export function IncidentDetail({ id }: { id: string }) {
               </p>
             </section>
           )}
+
+          <RepoInvestigationPanel events={data.events} />
 
           {data.postmortem && <PostmortemViewer postmortem={data.postmortem} />}
         </div>

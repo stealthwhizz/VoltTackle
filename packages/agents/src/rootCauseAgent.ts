@@ -1,6 +1,7 @@
 import { RootCauseOutputSchema, type RootCauseInput, type RootCauseOutput } from "@volt-tackle/shared";
 import { withAgentSpan, recordLlmUsage } from "@volt-tackle/observability";
 import { loadPrompt } from "./promptLoader.js";
+import { filterGroundedReferences } from "./grounding.js";
 import { AgentExecutionError, type AgentDeps, type AgentRunContext } from "./types.js";
 
 const AGENT_NAME = "root-cause-agent";
@@ -38,9 +39,7 @@ export async function runRootCauseAgent(
         // generation" requirement) survive into the persisted output. If the
         // model didn't cite any of the real refs, fall back to the top
         // retrieved refs rather than surfacing an empty, ungrounded result.
-        const validRefs = new Set(input.retrievalRefs);
-        const cited = result.data.groundedReferences.filter((ref) => validRefs.has(ref));
-        const groundedReferences = cited.length > 0 ? cited : input.retrievalRefs.slice(0, 3);
+        const groundedReferences = filterGroundedReferences(result.data.groundedReferences, input.retrievalRefs);
 
         return {
           output: { ...result.data, groundedReferences },

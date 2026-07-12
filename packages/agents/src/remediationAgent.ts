@@ -1,6 +1,7 @@
 import { RemediationOutputSchema, type RemediationInput, type RemediationOutput } from "@volt-tackle/shared";
 import { withAgentSpan, recordLlmUsage } from "@volt-tackle/observability";
 import { loadPrompt } from "./promptLoader.js";
+import { filterGroundedReferences } from "./grounding.js";
 import { AgentExecutionError, type AgentDeps, type AgentRunContext } from "./types.js";
 
 const AGENT_NAME = "remediation-agent";
@@ -40,9 +41,7 @@ export async function runRemediationAgent(
           completionTokens: result.meta.completionTokens,
         });
 
-        const validRefs = new Set(input.groundedReferences);
-        const cited = result.data.groundedReferences.filter((ref) => validRefs.has(ref));
-        const groundedReferences = cited.length > 0 ? cited : input.groundedReferences.slice(0, 3);
+        const groundedReferences = filterGroundedReferences(result.data.groundedReferences, input.groundedReferences);
         // Remediation confidence is capped by root cause confidence: a
         // shaky diagnosis cannot license a highly-confident fix.
         const confidenceScore = Math.min(result.data.confidenceScore, input.rootCauseConfidence + 0.1);

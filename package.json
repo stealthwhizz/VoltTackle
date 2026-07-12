@@ -20,12 +20,15 @@
     "db:migrate": "npm run db:migrate -w @volt-tackle/database",
     "db:seed": "npm run db:seed -w @volt-tackle/database",
     "qdrant:bootstrap": "npm run bootstrap -w @volt-tackle/retrieval",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
   },
   "devDependencies": {
     "typescript": "5.6.3",
     "tsx": "4.19.2",
-    "@types/node": "20.16.11"
+    "@types/node": "20.16.11",
+    "vitest": "4.1.10"
   }
 }
