@@ -1,0 +1,13 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "RAILPACK",
+    "buildCommand": "npm install --include=dev && npm run db:generate -w @volt-tackle/database"
+  },
+  "deploy": {
+    "startCommand": "npm run db:deploy -w @volt-tackle/database && (npm run db:seed -w @volt-tackle/database || true) && (npm run qdrant:bootstrap || true) && npm run start -w @volt-tackle/api",
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 300,
+    "restartPolicyType": "ON_FAILURE"
+  }
+}
