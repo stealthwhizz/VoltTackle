@@ -249,3 +249,4 @@ packages/database/prisma/dev.db
 docs/DEMO.md
 .vercel
 .env*.local
+deploy/
