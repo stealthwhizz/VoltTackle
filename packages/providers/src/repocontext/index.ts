@@ -23,6 +23,7 @@ export interface RepoContextFactoryConfig {
   provider: RepoContext["provider"];
   repoMap?: Record<string, string>;
   githubToken?: string;
+  logger?: { warn: (entry: unknown, msg?: string) => void };
   gitAgentBin?: string;
   gitAgentLlmApiKey?: string;
   gitAgentModel?: string;
@@ -36,6 +37,7 @@ export function createRepoContextProvider(config: RepoContextFactoryConfig): Rep
     case "gitagent":
       return new GitAgentRepoContextProvider({
         repoMap,
+        logger: config.logger,
         pat: config.githubToken,
         llmApiKey: config.gitAgentLlmApiKey,
         model: config.gitAgentModel,

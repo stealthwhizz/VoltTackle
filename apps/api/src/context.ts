@@ -34,9 +34,11 @@ export interface AppContext {
 }
 
 export function buildContext(env: Env): AppContext {
+  const logger = createLogger({ name: "volt-tackle-api" });
+
   return {
     env,
-    logger: createLogger({ name: "volt-tackle-api" }),
+    logger,
     tracer: getTracer("volt-tackle-api"),
     llmProvider: createLlmProvider({
       provider: env.LLM_PROVIDER,
@@ -67,6 +69,7 @@ export function buildContext(env: Env): AppContext {
       provider: env.REPO_CONTEXT_PROVIDER,
       repoMap: parseRepoMap(env.INCIDENT_REPO_MAP),
       githubToken: env.GITHUB_TOKEN,
+      logger,
       gitAgentBin: env.GITAGENT_BIN,
       ...resolveGitAgentLlm(env),
       gitAgentOpenAiBaseUrl: env.GITAGENT_OPENAI_BASE_URL,

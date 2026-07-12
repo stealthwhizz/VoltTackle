@@ -13,6 +13,8 @@ const exec = promisify(execFile);
 export interface GitAgentConfig {
   /** service -> repo URL. */
   repoMap: Record<string, string>;
+  /** Optional logger for surfacing clone / runtime failures. */
+  logger?: { warn: (entry: unknown, msg?: string) => void };
   /** GitHub PAT — required by gitagent's repo (clone) mode. */
   pat?: string;
   /** LLM key gitagent uses for its own agent loop. */
@@ -120,11 +122,17 @@ export class GitAgentRepoContextProvider implements RepoContextProvider {
       }
       return result;
     } catch (err) {
+      this.config.logger?.warn(
+        { err, repo, service: request.service },
+        "GitAgent repo context provider failed; falling back to local-git.",
+      );
       const fb = await this.config.fallback.getRepoContext(request);
       return { ...fb, summary: `[gitagent run failed: ${(err as Error).message} → local-git fallback] ${fb.summary}` };
     } finally {
       restoreEnv();
-      if (sandbox) await rm(sandbox, { recursive: true, force: true }).catch(() => {});
+      if (sandbox) await rm(sandbox, { recursive: true, force: true }).catch((cleanupErr) => {
+        this.config.logger?.warn({ cleanupErr, sandbox }, "Failed to clean up GitAgent sandbox.");
+      });
     }
   }
 

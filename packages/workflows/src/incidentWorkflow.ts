@@ -206,7 +206,10 @@ export function buildIncidentWorkflow(deps: WorkflowDeps) {
               ...(repoUrl ? { repoUrl } : {}),
               ...(questions ? { questions } : {}),
             })
-            .catch(() => undefined)
+            .catch((err) => {
+              deps.logger.warn({ err, incidentId }, "Repo context provider failed; continuing without repo context.");
+              return undefined;
+            })
         : undefined;
 
       if (repoContext?.available) {
